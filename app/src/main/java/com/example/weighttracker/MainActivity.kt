@@ -1,17 +1,27 @@
 package com.example.weighttracker
 
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -24,6 +34,7 @@ import com.example.weighttracker.ui.theme.WeightTrackerTheme
 import com.example.weighttracker.uis.addweight.AddWeightPage
 import com.example.weighttracker.uis.home.HomePage
 import kotlinx.coroutines.launch
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,19 +56,29 @@ fun WeightApp(modifier: Modifier = Modifier) {
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
-                AppDrawer { destination ->
-                    scope.launch { drawerState.close() }
-                    navController.navigate(destination) {
-                        // Prevent stacking the same destination
-                        launchSingleTop = true
-                        restoreState = true
-                        popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
+                Surface(
+                    modifier = Modifier.fillMaxHeight()
+                        .width(LocalConfiguration.current.screenWidthDp.dp * 0.6f)
+                        .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()),
+                    shape = RoundedCornerShape(topEnd = 24.dp, bottomEnd = 24.dp),
+                    tonalElevation = 4.dp,
+                ) {
+                    AppDrawer { destination ->
+                        scope.launch { drawerState.close() }
+                        navController.navigate(destination) {
+                            launchSingleTop = true
+                            restoreState = true
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
                         }
                     }
                 }
             }
-        ) {
+        )
+
+
+        {
             // No global topBar here — screens define their own
             Scaffold { innerPadding ->
                 NavHost(

@@ -23,8 +23,11 @@ fun AppDrawer(
     onDestinationClicked: (Any) -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+        modifier = Modifier.fillMaxSize().padding(top = 48.dp, start = 16.dp, end = 16.dp)
     ) {
+        Spacer(modifier = Modifier.height(32.dp))
+        Text("Welcome!", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(32.dp))
         Text("Menu", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(16.dp))
 
