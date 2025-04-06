@@ -8,13 +8,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -31,7 +31,6 @@ import com.example.weighttracker.destinations.BMIRoute
 import com.example.weighttracker.destinations.HomeRoute
 import com.example.weighttracker.destinations.KcalRoute
 import com.example.weighttracker.ui.theme.WeightTrackerTheme
-import com.example.weighttracker.uis.addweight.AddWeightPage
 import com.example.weighttracker.uis.home.HomePage
 import kotlinx.coroutines.launch
 
@@ -59,7 +58,8 @@ fun WeightApp(modifier: Modifier = Modifier) {
                 Surface(
                     modifier = Modifier.fillMaxHeight()
                         .width(LocalConfiguration.current.screenWidthDp.dp * 0.6f)
-                        .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()),
+                        .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding())
+                        .padding(bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()),
                     shape = RoundedCornerShape(topEnd = 24.dp, bottomEnd = 24.dp),
                     tonalElevation = 4.dp,
                 ) {
@@ -75,42 +75,39 @@ fun WeightApp(modifier: Modifier = Modifier) {
                     }
                 }
             }
-        )
+        ) {
 
 
-        {
-            // No global topBar here — screens define their own
-            Scaffold { innerPadding ->
-                NavHost(
-                    navController = navController,
-                    startDestination = HomeRoute,
-                    modifier = Modifier.padding(innerPadding)
-                ) {
-                    composable<HomeRoute> {
-                        HomePage(
-                            navigateToAddWeight = { navController.navigate(AddWeightRoute) },
-                            modifier = modifier,
-                            openDrawer = { scope.launch { drawerState.open() } },
-                        )
-                    }
+            NavHost(
+                navController = navController,
+                startDestination = HomeRoute,
+                modifier = Modifier
+            ) {
+                composable<HomeRoute> {
+                    HomePage(
+                        //navigateToAddWeight = { navController.navigate(AddWeightRoute) },
+                        modifier = modifier,
+                        openDrawer = { scope.launch { drawerState.open() } },
+                    )
+                }
 
-                    composable<AddWeightRoute> {
-                        AddWeightPage(
-                            modifier = modifier,
-                            navigateBack = { navController.popBackStack() },
-                            navigateUp = { navController.navigateUp() }
-                        )
-                    }
+                composable<AddWeightRoute> {
+//                        AddWeightPage(
+//                            modifier = modifier,
+//                            navigateBack = { navController.popBackStack() },
+//                            navigateUp = { navController.navigateUp() }
+//                        )
+                }
 
-                    composable<BMIRoute> {
-                        //BMICalculatorPage() // ← define this composable
-                    }
+                composable<BMIRoute> {
+                    //BMICalculatorPage() // ← define this composable
+                }
 
-                    composable<KcalRoute> {
-                        //KcalCalculatorPage() // ← define this composable
-                    }
+                composable<KcalRoute> {
+                    //KcalCalculatorPage() // ← define this composable
                 }
             }
+
         }
     }
 }

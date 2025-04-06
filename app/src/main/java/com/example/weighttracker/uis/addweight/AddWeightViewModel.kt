@@ -6,7 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
 class AddWeightViewModel(): ViewModel(){
+
     var addWeightUiState by mutableStateOf(AddWeightUiState())
+
     fun updateUiState(addWeightDetails: AddWeightDetails) {
         addWeightUiState = AddWeightUiState(addWeightDetails = addWeightDetails, isEntryValid = validateInput(addWeightDetails))
     }
