@@ -7,26 +7,23 @@ data class AddWeightDetails(
     val id: Long = 0,
     val weight: String = "",
     val weightDate: String = "",
-    val completed: Boolean = false,
+
     )
 
 data class AddWeightUiState(
-    val addWeightDetails: AddWeightDetails = defaultAddWeightDetails(),
+    val addWeightDetails: AddWeightDetails = AddWeightDetails(
+        weight = "",
+        weightDate = formatDate(System.currentTimeMillis(), "yyyy-MM-dd") ?: ""),
     val isEntryValid: Boolean = false,
 )
 
-fun defaultAddWeightDetails(): AddWeightDetails {
-    return AddWeightDetails(
-        weightDate = formatDate(System.currentTimeMillis(), pattern = "yyyy-MM-dd") ?: ""
-    )
-}
 
 //extension function to convert AddEventDetails to ShoppingEvent
-fun AddWeightDetails.toShoppingEvent(): WeightRecord = WeightRecord(
+fun AddWeightDetails.toWeightRecord(): WeightRecord = WeightRecord(
     id = id,
     weight = weight.toDouble(),
     weightDate = weightDate,
-    completed = completed
+
 
 
 )

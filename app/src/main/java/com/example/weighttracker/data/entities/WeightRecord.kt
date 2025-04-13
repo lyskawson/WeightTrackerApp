@@ -1,10 +1,13 @@
 package com.example.weighttracker.data.entities
 
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
+@Entity(tableName = "weight_records")
 data class WeightRecord(
-    val id: Long = 0,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val weight: Double = 0.0,
-    val weightDate: String,
-    val completed : Boolean = false,
+    @ColumnInfo(name = "weight_date") val weightDate: String,
 
     )

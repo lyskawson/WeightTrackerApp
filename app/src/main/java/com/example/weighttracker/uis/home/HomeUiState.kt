@@ -1,4 +1,8 @@
 package com.example.weighttracker.uis.home
 
-class HomeUiState {
-}
+import com.example.weighttracker.data.entities.WeightRecord
+
+
+data class HomeUiState(
+    val records: List<WeightRecord> = emptyList(),
+)
