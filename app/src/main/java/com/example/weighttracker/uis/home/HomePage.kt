@@ -1,10 +1,15 @@
 package com.example.weighttracker.uis.home
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,7 +39,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -51,13 +55,15 @@ import kotlinx.coroutines.launch
 fun HomePage(
     modifier: Modifier = Modifier,
     openDrawer: () -> Unit,
-    viewModelHome : HomeViewModel = hiltViewModel()
+    viewModelHome: HomeViewModel = hiltViewModel()
 ) {
     val viewModel: AddWeightViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
     var showSheet by remember { mutableStateOf(false) }
     val uiState by viewModelHome.homeUiState.collectAsState()
+
+    val screenHeight = configuration.screenHeightDp.dp
 
     Scaffold(
         topBar = {
@@ -74,102 +80,118 @@ fun HomePage(
                     icon = { Icon(Icons.Filled.Add, contentDescription = "Add") },
                     onClick = {
                         viewModel.resetAddWeightState()
-                        showSheet = true }
+                        showSheet = true
+                    }
                 )
             }
         }
     ) { innerPadding ->
         Box(
             modifier = Modifier.fillMaxSize()
-
         ) {
 
+            AnimatedVisibility(
+                visible = showSheet,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .zIndex(1f),
 
+                enter = slideInVertically(
+                    animationSpec = tween(durationMillis = 300),
+                    initialOffsetY = { fullHeight -> fullHeight }
+                ),
 
-
-            if (showSheet) {
+                exit = slideOutVertically(
+                    animationSpec = tween(durationMillis = 300),
+                    targetOffsetY = { fullHeight -> fullHeight }
+                )
+            ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(configuration.screenHeightDp.dp * 0.5f)
-                        .align(Alignment.BottomCenter)
+                        .height(screenHeight * 0.5f)
                         .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                        .background(Color.White)
-                        .zIndex(1f)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .navigationBarsPadding()
+                            .navigationBarsPadding() // Add padding for navigation bar
                             .padding(horizontal = 24.dp)
-
                     ) {
-
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 16.dp),
-
-
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
-
                         ) {
-                            Text("Add a record", style = MaterialTheme.typography.titleMedium)
-                            IconButton(onClick = { showSheet = false }) {
+                            Text(
+                                "Add a record",
+                                // Use M3 Typography
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            IconButton(onClick = {
+                                showSheet = false // Trigger animation OUT
+                            }) {
                                 Icon(Icons.Filled.Close, contentDescription = "Close")
                             }
                         }
 
+                        Spacer(modifier = Modifier.height(8.dp)) // Add some space
+
+
                         AddWeightBottomSheetContent(
                             uiState = viewModel.addWeightUiState,
                             onEventValueChange = viewModel::updateUiState,
-                            onCancel = { showSheet = false },
+                            onCancel = {
+                                showSheet = false
+                            },
                             onSave = {
                                 coroutineScope.launch {
-                                    if (viewModel.addWeightUiState.addWeightDetails.id != 0L) {
+                                    if (viewModel.addWeightUiState.addWeightDetails.id != 0L)
+                                    {
                                         viewModel.updateRecord()
-                                    } else {
+                                    }
+                                    else
+                                    {
                                         viewModel.saveRecord()
                                     }
-                                    showSheet = false
                                 }
+                                showSheet = false
                             }
                         )
+
                     }
                 }
             }
 
-            if(uiState.records.isEmpty()){
+            if (uiState.records.isEmpty() && !showSheet)
+            {
                 EmptyList(
-                    message = "No events foun\n Add an event to get started",
-                    modifier = modifier .padding(innerPadding)
+                    message = "No records found.\n Add a record to get started.",
+                    modifier = modifier
+                        .padding(innerPadding)
+                        .align(Alignment.Center) // Center empty message
                 )
-                return@Scaffold
+
             }
-
-            WeightList(
-                records = uiState.records,
-                modifier = modifier.padding(innerPadding),
-                onDelete = {
-                    coroutineScope.launch {
-                        viewModelHome.deleteRecord(it)
+            else if (!uiState.records.isEmpty())
+            {
+                WeightList(
+                    records = uiState.records,
+                    modifier = modifier.padding(innerPadding),
+                    onDelete = {
+                        coroutineScope.launch {
+                            viewModelHome.deleteRecord(it)
+                        }
+                    },
+                    onEdit = {
+                        viewModel.startEditing(it)
+                        showSheet = true
                     }
-                },
-                onEdit = {
-                    viewModel.startEditing(it)
-                    showSheet = true;
-
-
-
-                }
-            )
-
-
-
-
-
-
+                )
+            }
         }
     }
 }
@@ -216,7 +238,7 @@ fun WeightRecordView(
     modifier: Modifier = Modifier,
     onDelete: () -> Unit,
     onEdit: () -> Unit,
-    ) {
+) {
 
     SwipedRecord(
         onDelete = onDelete,
@@ -231,15 +253,6 @@ fun WeightRecordView(
                 Text(record.weightDate, style = MaterialTheme.typography.bodyLarge)
             },
 
-        )
+            )
     }
-
-
-
-
 }
-
-
-
-
-

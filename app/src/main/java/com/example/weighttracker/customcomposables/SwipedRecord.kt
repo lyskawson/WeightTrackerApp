@@ -65,24 +65,15 @@ fun SwipedRecord(
             title = { Text("Delete Record") },
             text = { Text("Are you sure you want to delete this Record?") },
             onDismissRequest = {
-                // User dismissed dialog (clicked outside or back)
                 showDeleteDialog = false
                 coroutineScope.launch { dismissState.reset() } // Reset swipe state
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        // Don't hide the dialog here yet.
                         coroutineScope.launch {
-                            // 1. Animate the swipe fully to the end state.
-                            // This suspend function waits for the animation.
                             dismissState.dismiss(SwipeToDismissBoxValue.EndToStart)
-
-                            // 2. AFTER the animation completes, perform the actual deletion.
                             onDelete()
-
-                            // 3. Hide the dialog state variable (might be redundant if
-                            // onDelete causes this composable to leave composition, but safe).
                             showDeleteDialog = false
                         }
                     }
@@ -93,22 +84,10 @@ fun SwipedRecord(
             dismissButton = {
                 TextButton(
                     onClick = {
-                        // Don't hide the dialog here yet.
                         coroutineScope.launch {
-                            // 1. Animate the swipe fully to the end state.
-                            // This suspend function waits for the animation.
                             dismissState.dismiss(SwipeToDismissBoxValue.EndToStart)
-
-                            // ****** ADD DELAY HERE ******
-                            // 2. Introduce a small delay to allow the dismiss animation
-                            //    to visually settle before removing the item from the list.
-                            //    Adjust the time if needed (start small).
-                            delay(50L) // e.g., 50 milliseconds
-
-                            // 3. AFTER the delay, perform the actual deletion.
+                            delay(50L)
                             onDelete()
-
-                            // 4. Hide the dialog state variable (may be redundant now, but safe).
                             showDeleteDialog = false
                         }
                     }
@@ -127,7 +106,7 @@ fun SwipedRecord(
         modifier = modifier,
         enableDismissFromStartToEnd = true,
         enableDismissFromEndToStart = true,
-        backgroundContent = { /* ... Your existing background code ... */
+        backgroundContent = {
             val direction = dismissState.dismissDirection
             val color by animateColorAsState(
                 targetValue = when (direction) {
@@ -149,8 +128,7 @@ fun SwipedRecord(
             }
 
             val scale by animateFloatAsState(
-                // Animate scale based on whether it's moving towards a dismissed state
-                targetValue = if (dismissState.targetValue == SwipeToDismissBoxValue.Settled) 1f else 1.2f, // Slightly smaller scale adjustment
+                targetValue = if (dismissState.targetValue == SwipeToDismissBoxValue.Settled) 1f else 1.3f,
                 label = "Dismiss Icon Scale"
             )
 
