@@ -13,7 +13,7 @@ data class AddWeightDetails(
 data class AddWeightUiState(
     val addWeightDetails: AddWeightDetails = AddWeightDetails(
         weight = "",
-        weightDate = formatDate(System.currentTimeMillis(), "yyyy-MM-dd") ?: ""),
+        weightDate = formatDate(System.currentTimeMillis()) ?: ""),
     val isEntryValid: Boolean = false,
 )
 

@@ -38,6 +38,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.weighttracker.utilities.formatDate
+import com.example.weighttracker.utilities.getStartOfTodayUtcMillis
 import com.example.weighttracker.utilities.parseDateToMillis
 
 
@@ -50,10 +51,8 @@ fun AddWeightBottomSheetContent(
     onSave: () -> Unit,
 ) {
     val initialDateMillis = parseDateToMillis(uiState.addWeightDetails.weightDate)
-
-
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = initialDateMillis
+        initialSelectedDateMillis = initialDateMillis ?: getStartOfTodayUtcMillis() // <-- Use the new helper
     )
     var openDatePickerDialog by remember { mutableStateOf(false) }
 

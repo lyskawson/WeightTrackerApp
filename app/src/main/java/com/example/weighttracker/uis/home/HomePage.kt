@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.weighttracker.customcomposables.SwipedRecord
 import com.example.weighttracker.customcomposables.WeightAppBar
 import com.example.weighttracker.data.entities.WeightRecord
 import com.example.weighttracker.uis.addweight.AddWeightBottomSheetContent
@@ -83,18 +83,9 @@ fun HomePage(
             modifier = Modifier.fillMaxSize()
 
         ) {
-            if(uiState.records.isEmpty()){
-                EmptyList(
-                    message = "No events foun\n Add an event to get started",
-                    modifier = modifier .padding(innerPadding)
-                )
-                return@Scaffold
-            }
 
-            WeightList(
-                records = uiState.records,
-                modifier = modifier.padding(innerPadding)
-            )
+
+
 
             if (showSheet) {
                 Box(
@@ -136,7 +127,11 @@ fun HomePage(
                             onCancel = { showSheet = false },
                             onSave = {
                                 coroutineScope.launch {
-                                    viewModel.saveEvent()
+                                    if (viewModel.addWeightUiState.addWeightDetails.id != 0L) {
+                                        viewModel.updateRecord()
+                                    } else {
+                                        viewModel.saveRecord()
+                                    }
                                     showSheet = false
                                 }
                             }
@@ -155,7 +150,19 @@ fun HomePage(
 
             WeightList(
                 records = uiState.records,
-                modifier = modifier.padding(innerPadding)
+                modifier = modifier.padding(innerPadding),
+                onDelete = {
+                    coroutineScope.launch {
+                        viewModelHome.deleteRecord(it)
+                    }
+                },
+                onEdit = {
+                    viewModel.startEditing(it)
+                    showSheet = true;
+
+
+
+                }
             )
 
 
@@ -184,38 +191,55 @@ fun EmptyList(
 @Composable
 fun WeightList(
     records: List<WeightRecord>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDelete: (WeightRecord) -> Unit,
+    onEdit: (WeightRecord) -> Unit
 ) {
     LazyColumn(
-        modifier = modifier,
+        modifier = modifier
     ) {
         items(records) { record ->
             WeightRecordView(
-                record = record
+                record = record,
+                onEdit = {onEdit(record)},
+                onDelete = {onDelete(record)}
             )
         }
+
+
     }
 }
 
 @Composable
 fun WeightRecordView(
     record: WeightRecord,
-    modifier: Modifier = Modifier) {
-    ListItem(
-        tonalElevation = 10.dp,
-        headlineContent = {
-            Text(record.weight.toString())
-        },
-        trailingContent = {
-            Text(record.weightDate, style = MaterialTheme.typography.bodyLarge)
-        },
-        leadingContent = {
-            IconButton(
-                onClick = {}
-            ){
-                Icon(Icons.Filled.Delete, contentDescription = null)
-            }
-        }
-    )
+    modifier: Modifier = Modifier,
+    onDelete: () -> Unit,
+    onEdit: () -> Unit,
+    ) {
+
+    SwipedRecord(
+        onDelete = onDelete,
+        onEdit = onEdit
+    ) {
+        ListItem(
+            tonalElevation = 10.dp,
+            headlineContent = {
+                Text(record.weight.toString())
+            },
+            trailingContent = {
+                Text(record.weightDate, style = MaterialTheme.typography.bodyLarge)
+            },
+
+        )
+    }
+
+
+
 
 }
+
+
+
+
+
