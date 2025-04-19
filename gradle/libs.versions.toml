@@ -18,6 +18,7 @@ navigationCompose = "2.8.2"
 hiltNavigationCompose = "1.2.0"
 kotlinxSerializationJson = "1.7.3"
 uiTextGoogleFonts = "1.7.8"
+core = "1.16.0"
 
 
 [libraries]
@@ -44,6 +45,7 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
+androidx-core = { group = "androidx.core", name = "core", version.ref = "core" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

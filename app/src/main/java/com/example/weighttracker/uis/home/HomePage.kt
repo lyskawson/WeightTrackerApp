@@ -16,9 +16,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -64,6 +67,7 @@ fun HomePage(
     val uiState by viewModelHome.homeUiState.collectAsState()
 
     val screenHeight = configuration.screenHeightDp.dp
+    val listState = rememberLazyListState()
 
     Scaffold(
         topBar = {
@@ -156,6 +160,7 @@ fun HomePage(
                                     else
                                     {
                                         viewModel.saveRecord()
+                                        listState.animateScrollToItem(0)
                                     }
                                 }
                                 showSheet = false
@@ -189,7 +194,8 @@ fun HomePage(
                     onEdit = {
                         viewModel.startEditing(it)
                         showSheet = true
-                    }
+                    },
+                    listState = listState
                 )
             }
         }
@@ -215,12 +221,16 @@ fun WeightList(
     records: List<WeightRecord>,
     modifier: Modifier = Modifier,
     onDelete: (WeightRecord) -> Unit,
-    onEdit: (WeightRecord) -> Unit
+    onEdit: (WeightRecord) -> Unit,
+    listState: LazyListState
 ) {
     LazyColumn(
+        state = listState,
         modifier = modifier
     ) {
-        items(records) { record ->
+        items(
+            items = records,
+            key = {record -> record.id}) { record ->
             WeightRecordView(
                 record = record,
                 onEdit = {onEdit(record)},
@@ -246,11 +256,26 @@ fun WeightRecordView(
     ) {
         ListItem(
             tonalElevation = 10.dp,
+            leadingContent = {
+                Text(record.weightDate, style = MaterialTheme.typography.bodyLarge)
+            },
             headlineContent = {
-                Text(record.weight.toString())
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Default.AccountBox,
+                        contentDescription = "Weight icon",
+                        modifier = Modifier.padding(end = 4.dp)
+                    )
+                    Text("${record.weight} kg" , style = MaterialTheme.typography.titleMedium)
+
+                }
+
             },
             trailingContent = {
-                Text(record.weightDate, style = MaterialTheme.typography.bodyLarge)
+                Text("+0.5 kg" , style = MaterialTheme.typography.titleSmall)
             },
 
             )

@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -32,7 +33,7 @@ fun WeightAppBar(
                 modifier = Modifier.fillMaxWidth().padding(end = 56.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(title)
+                Text(title, style = MaterialTheme.typography.titleLarge)
             }
         },
         modifier = modifier,

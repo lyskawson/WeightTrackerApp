@@ -21,6 +21,6 @@ interface WeightRecordDao{
     @Delete
     suspend fun delete(weightRecord: WeightRecord)
 
-    @Query("SELECT * FROM weight_records")
+    @Query("SELECT * FROM weight_records ORDER BY weight_date DESC")
     fun getRecords() : Flow<List<WeightRecord>>
 }
