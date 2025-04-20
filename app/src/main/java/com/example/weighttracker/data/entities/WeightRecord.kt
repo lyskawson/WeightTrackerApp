@@ -8,6 +8,6 @@ import androidx.room.PrimaryKey
 data class WeightRecord(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val weight: Double = 0.0,
-    @ColumnInfo(name = "weight_date") val weightDate: String,
+    @ColumnInfo(name = "weight_date") val weightDate: Long,
 
     )

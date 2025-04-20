@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.example.weighttracker.data.daos.WeightRecordDao
 import com.example.weighttracker.data.entities.WeightRecord
 
-@Database(entities = [WeightRecord::class], version = 1)
+@Database(entities = [WeightRecord::class], version = 2, exportSchema = false)
 abstract class WeightDatabase : RoomDatabase(){
     abstract fun weightRecordDao(): WeightRecordDao
 
@@ -21,7 +21,9 @@ abstract class WeightDatabase : RoomDatabase(){
                     context = context.applicationContext,
                     klass= WeightDatabase::class.java,
                     name = "weight_database"
-                ).build().also{
+                )
+                    //.fallbackToDestructiveMigration()
+                    .build().also{
                     instance = it
                 }
             }

@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -85,9 +84,6 @@ fun SwipedRecord(
                 TextButton(
                     onClick = {
                         coroutineScope.launch {
-                            dismissState.dismiss(SwipeToDismissBoxValue.EndToStart)
-                            delay(50L)
-                            onDelete()
                             showDeleteDialog = false
                         }
                     }

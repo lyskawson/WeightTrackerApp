@@ -1,5 +1,6 @@
 package com.example.weighttracker.uis.addweight
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,9 +39,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.weighttracker.utilities.formatDate
+import com.example.weighttracker.utilities.formatTimestampToString
 import com.example.weighttracker.utilities.getStartOfTodayUtcMillis
-import com.example.weighttracker.utilities.parseDateToMillis
+import com.example.weighttracker.utilities.parseStringToTimestamp
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,9 +52,17 @@ fun AddWeightBottomSheetContent(
     onCancel: () -> Unit,
     onSave: () -> Unit,
 ) {
-    val initialDateMillis = parseDateToMillis(uiState.addWeightDetails.weightDate)
+    LaunchedEffect(uiState.addWeightDetails) {
+        Log.d("BottomSheet_State", "[Composition Update] Received uiState.addWeightDetails: ${uiState.addWeightDetails}")
+    }
+    val initialDateMillis = parseStringToTimestamp(uiState.addWeightDetails.weightDate)
+
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = initialDateMillis ?: getStartOfTodayUtcMillis() // <-- Use the new helper
+        // Provide the DatePickerState with the UTC timestamp.
+        // The DatePicker composable itself will display this correctly in the user's local timezone.
+        // Use the parsed timestamp if available (meaning weightDate was valid),
+        // otherwise default to the start of the current day in UTC using the helper.
+        initialSelectedDateMillis = initialDateMillis ?: getStartOfTodayUtcMillis()
     )
     var openDatePickerDialog by remember { mutableStateOf(false) }
 
@@ -116,8 +126,12 @@ fun AddWeightBottomSheetContent(
         state = datePickerState,
         onDismissRequest = { openDatePickerDialog = false },
         onClickConfirmButton = {
-            datePickerState.selectedDateMillis?.let {
-                onEventValueChange(uiState.addWeightDetails.copy(weightDate = formatDate(it)!!))
+            datePickerState.selectedDateMillis?.let { selectedTimestamp ->
+                // --- CHANGE HERE: Use formatTimestampToString to update UI state string ---
+                // When the user confirms a date (Long timestamp), format it back
+                // to a String using the consistent pattern for the UI state.
+                val formattedDateString = formatTimestampToString(selectedTimestamp)
+                onEventValueChange(uiState.addWeightDetails.copy(weightDate = formattedDateString))
             }
             openDatePickerDialog = false
         },
@@ -176,7 +190,9 @@ fun DatePickerStateButtonUi(
     onSelectDateButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val formattedDate = formatDate(state.selectedDateMillis) ?: "No date selected"
+    val formattedDate = state.selectedDateMillis?.let {
+        formatTimestampToString(it) // Use the correct helper
+    } ?: "Select Date" // More descriptive default text
 
     // Button containing the date and calendar icon
     OutlinedButton(
